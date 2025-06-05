@@ -1,7 +1,8 @@
 {
   "dockerfile_lines": [],
   "graphs": {
-    "create_analysts": "./create_analysts.py:graph"
+    "create_analysts": "./create_analysts.py:graph",
+    "conduct_interviews": "./conduct_interviews.py:graph"
   },
   "env": "./.env",
   "python_version": "3.12",
