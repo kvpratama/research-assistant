@@ -6,7 +6,7 @@ class LangGraphClient:
     def __init__(self, base_url="http://127.0.0.1:2024"):
         self.base_url = base_url
         self.thread_id = self.create_thread()
-        self.assistant_id = self.create_assistant()
+        self.assistant_id = None
     
     def create_thread(self):
         """Create a new thread"""
@@ -24,14 +24,14 @@ class LangGraphClient:
         response.raise_for_status()
         return response.json()["thread_id"]
     
-    def create_assistant(self):
+    def create_assistant(self, graph_id):
         response = requests.post(f"{self.base_url}/assistants",
             headers={
             "Content-Type": "application/json"
             },
             json={
                 "assistant_id": "",
-                "graph_id": "create_analysts",
+                "graph_id": graph_id,
                 "config": {},
                 "metadata": {},
                 "if_exists": "raise",
