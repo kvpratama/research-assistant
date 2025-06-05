@@ -11,6 +11,7 @@ logger = logging.getLogger(__name__)
 if "client" not in st.session_state:
     logger.info("Initializing LangGraphClient...")
     st.session_state["client"] = LangGraphClient()
+    st.session_state["client"].assistant_id = st.session_state["client"].create_assistant("create_analysts")
     st.session_state["response"] = None
 
 st.title("AI Analyst Persona Generator")
