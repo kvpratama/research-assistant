@@ -1,22 +1,8 @@
-from typing import List, Annotated
-from typing_extensions import TypedDict
-from pydantic import BaseModel, Field
-from operator import add
 from langgraph.graph import START, END, StateGraph
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
-from llm_model import llm, llm_creative, llm_versatile
-from create_analysts import Analyst
-from langgraph.graph import MessagesState
-
-class InterviewState(MessagesState):
-    max_num_turns: int # Number turns of conversation
-    context: Annotated[list, add] # Source docs
-    analyst: Analyst # Analyst asking questions
-    interview: str # Interview transcript
-    sections: list # Final key we duplicate in outer state for Send() API
-
-class SearchQuery(BaseModel):
-    search_query: str = Field(None, description="Search query for retrieval.")
+from llm_model import llm_versatile
+from state import InterviewState
+from generate_answer import search_web, search_wikipedia, generate_answer, save_interview, write_section, route_messages
 
 question_instructions = """You are an analyst tasked with interviewing an expert to learn about a specific topic. 
 
@@ -98,12 +84,24 @@ Description: Dr. Sterling focuses on the ethical implications of AI frameworks l
     return {"messages": [question]}
 
 
-# Add nodes and edges 
-builder = StateGraph(InterviewState)
-builder.add_node("generate_question", generate_question)
+interview_builder = StateGraph(InterviewState)
+interview_builder.add_node("generate_question", generate_question)
+interview_builder.add_node("search_web", search_web)
+interview_builder.add_node("search_wikipedia", search_wikipedia)
+interview_builder.add_node("generate_answer", generate_answer)
+interview_builder.add_node("save_interview", save_interview)
+interview_builder.add_node("write_section", write_section)
 
-builder.add_edge(START, "generate_question")
-builder.add_edge("generate_question", END)
+# Flow
+interview_builder.add_edge(START, "generate_question")
+interview_builder.add_edge("generate_question", "search_web")
+interview_builder.add_edge("generate_question", "search_wikipedia")
+interview_builder.add_edge("search_web", "generate_answer")
+interview_builder.add_edge("search_wikipedia", "generate_answer")
+interview_builder.add_conditional_edges("generate_answer", route_messages,['generate_question','save_interview'])
+interview_builder.add_edge("save_interview", "write_section")
+interview_builder.add_edge("write_section", END)
 
-# Compile
-graph = builder.compile()
+# Interview 
+# memory = MemorySaver()
+interview_graph = interview_builder.compile().with_config(run_name="Conduct Interviews")

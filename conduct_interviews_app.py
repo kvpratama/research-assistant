@@ -18,18 +18,15 @@ st.title("Conduct Interview with AI Analyst")
 
 if not st.session_state["response"]:
     # User inputs
-    # topic = st.text_area("Enter research topic:", height=100, value="Climate change")
-    # max_analysts = st.number_input("Number of analysts:", min_value=1, max_value=10, value=3)
 
-    if st.button("Generate Question"):
-        logger.info("Generating question...")
-        with st.spinner("Generating question..."):
+    if st.button("Conduct Interview"):
+        logger.info("Conducting Interview...")
+        with st.spinner("Conducting Interview..."):
             # Prepare input data for backend
             input_data = {
                 "messages": ["Ask questions"],
             }
-            st.session_state["response"] = st.session_state["client"].run_graph(input_data=input_data)
-            st.rerun() 
+            st.write_stream(st.session_state["client"].run_graph_stream(input_data=input_data))
             
 if st.session_state["response"]:
     question = st.session_state["response"]["messages"][-1]["content"]

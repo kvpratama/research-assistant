@@ -76,34 +76,44 @@ class LangGraphClient:
         )
         return response.json()
     
-    def get_run_status(self, thread_id, run_id):
-        """Get the status of a run"""
-        response = requests.get(f"{self.base_url}/threads/{thread_id}/runs/{run_id}")
-        response.raise_for_status()
-        return response.json()
+    def run_graph_stream(self, input_data):
+        url = f"{self.base_url}/threads/{self.thread_id}/runs/stream"
+        headers = {
+            "Content-Type": "application/json"
+        }
+        payload = {
+            "assistant_id": self.assistant_id,
+            "input": input_data,
+            "stream_mode": ["updates"],
+        }
+
+        with requests.post(url, headers=headers, json=payload, stream=True) as response:
+            if response.status_code != 200:
+                print(f"Stream request failed: {response.status_code} - {response.text}")
+                yield f"Stream request failed: {response.status_code} - {response.text}"
+                return
+
+            for line in response.iter_lines(decode_unicode=True):
+                if line.strip() == "":
+                    continue  # skip empty lines
+
+                print(f"🔹 Raw Line: {line}")
+                if line.startswith("data:"):
+                    data = json.loads(line[len("data:"):].strip())
+                    if "generate_question" in data:
+                        question = data["generate_question"]["messages"][0]["content"]
+                        print(f"🔹 Question: {question}")
+                        yield f"Questions:\n {question}\n\n --- \n\n"
+                    elif "generate_answer" in data:
+                        answer = data["generate_answer"]["messages"][0]["content"]
+                        print(f"🔹 Aswer: {answer}")
+                        yield f"Answers:\n {answer}\n\n --- \n\n"
+                    elif "write_section" in data:
+                        section = data["write_section"]["sections"][0]
+                        print(f"Section: {section}")
+                        yield f"Section:\n {section}\n\n --- \n\n"
+                    # yield f"{data}\n"
     
-    def get_thread_state(self, thread_id):
-        """Get the current state of a thread"""
-        response = requests.get(f"{self.base_url}/threads/{thread_id}/state")
-        response.raise_for_status()
-        return response.json()
-    
-    def update_state(self, thread_id, values):
-        """Update the thread state (for human feedback)"""
-        payload = {"values": values}
-        response = requests.post(
-            f"{self.base_url}/threads/{thread_id}/state",
-            headers={"Content-Type": "application/json"},
-            json=payload
-        )
-        response.raise_for_status()
-        return response.json()
-    
-    def resume_run(self, thread_id):
-        """Resume a paused run"""
-        response = requests.post(f"{self.base_url}/threads/{thread_id}/runs")
-        response.raise_for_status()
-        return response.json()
 
 # Example usage
 def main():
