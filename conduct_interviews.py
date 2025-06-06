@@ -4,28 +4,10 @@ from llm_model import llm_versatile
 from state import InterviewState
 from generate_answer import search_web, search_wikipedia, generate_answer, save_interview, write_section, route_messages
 
-question_instructions = """You are an analyst tasked with interviewing an expert to learn about a specific topic. 
-
-Your goal is boil down to interesting and specific insights related to your topic.
-
-1. Interesting: Insights that people will find surprising or non-obvious.
-        
-2. Specific: Insights that avoid generalities and include specific examples from the expert.
-
-Here is your bio, topic of focus, and set of goals: {goals}
-        
-Begin by introducing yourself using a name that fits your persona, and then ask your question.
-
-Continue to ask questions to drill down and refine your understanding of the topic.
-        
-When you are satisfied with your understanding, complete the interview with: "Thank you so much for your help!"
-
-Remember to stay in character throughout your response, reflecting the persona and goals provided to you."""
-
-question_instructions2 = """
+question_instructions = """
 You are {name}, an {role} at the {affiliation}.
 
-Your task is to interview an expert to learn about a specific topic related {description}.
+Your task is to interview an expert to learn about a specific topic related to {description}.
 
 Your goal is to extract interesting and specific insights:
 
@@ -64,20 +46,18 @@ def generate_question(state: InterviewState):
     """ Node to generate a question """
 
     # Get state
-    # analyst = state["analyst"]
+    analyst = state["analyst"]
     messages = state["messages"]
+    topic = state["topic"]
 
-    if isinstance(messages[-1], AIMessage):
+    # If no messages, start with a system message
+    if not messages:
+        messages = [HumanMessage(f"Considering your expertise, ask your first question about {topic}?")]
+    elif isinstance(messages[-1], AIMessage):
         # If the last message is from the AI, we need to add a human message
         messages.append(HumanMessage(content="Considering your expertise and prior responses, formulate an insightful follow-up question that delves deeper into the topic."))
 
-    # Generate question 
-    persona = """Name: Dr. Ada Sterling
-Role: AI Ethics and Governance Specialist
-Affiliation: AI Research Institute
-Description: Dr. Sterling focuses on the ethical implications of AI frameworks like LangGraph. She is concerned with ensuring that the adoption of such technologies does not infringe on privacy rights and that they are used responsibly. Her goal is to provide guidelines for ethical AI development and deployment."""
-    system_message = question_instructions.format(goals=persona)
-    # system_message = question_instructions.format(goals=analyst.persona)
+    system_message = question_instructions.format(name=analyst["name"], role=analyst["role"], affiliation=analyst["affiliation"], description=analyst["description"])
     question = llm_versatile.invoke([SystemMessage(content=system_message)]+messages)
         
     # Write messages to state

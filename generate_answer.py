@@ -12,8 +12,6 @@ from langchain_community.document_loaders import WikipediaLoader
 import time
 
 
-
-
 # Search query writing
 search_instructions = SystemMessage(content=f"""You will be given a conversation between an analyst and an expert. 
 
@@ -108,18 +106,12 @@ def generate_answer(state: InterviewState):
     """ Node to answer a question """
 
     # Get state
-    persona = """Name: Dr. Ada Sterling
-Role: AI Ethics and Governance Specialist
-Affiliation: AI Research Institute
-Description: Dr. Sterling focuses on the ethical implications of AI frameworks like LangGraph. She is concerned with ensuring that the adoption of such technologies does not infringe on privacy rights and that they are used responsibly. Her goal is to provide guidelines for ethical AI development and deployment."""
-    # system_message = question_instructions.format(goals=persona)
-    # analyst = state["analyst"]
+    analyst = state["analyst"]
     messages = state["messages"]
     context = state["context"]
 
     # Answer question
-    system_message = answer_instructions.format(goals=persona, context=context)
-    # system_message = answer_instructions.format(goals=analyst.persona, context=context)
+    system_message = answer_instructions.format(goals=analyst["description"], context=context)
     human_message = HumanMessage(content=messages[-1].content)
     answer = llm.invoke([SystemMessage(content=system_message)] + [human_message])
             
@@ -230,13 +222,11 @@ def write_section(state: InterviewState):
     # Get state
     interview = state["interview"]
     context = state["context"]
-    # analyst = state["analyst"]
-    persona = """Dr. Sterling focuses on the ethical implications of AI frameworks like LangGraph. She is concerned with ensuring that the adoption of such technologies does not infringe on privacy rights and that they are used responsibly. Her goal is to provide guidelines for ethical AI development and deployment."""
+    analyst = state["analyst"]
    
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
-    system_message = section_writer_instructions.format(focus=persona)
-    # system_message = section_writer_instructions.format(focus=analyst.description)
-    section = llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {context}")]) 
+    system_message = section_writer_instructions.format(focus=analyst["description"])
+    section = llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {interview}")]) 
                 
     # Append it to state
     return {"sections": [section.content]}

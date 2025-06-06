@@ -1,41 +1,8 @@
-from typing import List, Annotated
-from typing_extensions import TypedDict
-from pydantic import BaseModel, Field
-from operator import add
 from langgraph.graph import START, END, StateGraph
-from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
+from langchain_core.messages import HumanMessage, SystemMessage
 from llm_model import llm, llm_creative
+from state import GenerateAnalystsState, Perspectives
 
-class Analyst(BaseModel):
-    affiliation: str = Field(
-        description="Primary affiliation of the analyst.",
-    )
-    name: str = Field(
-        description="Name of the analyst."
-    )
-    role: str = Field(
-        description="Role of the analyst in the context of the topic.",
-    )
-    description: str = Field(
-        description="Description of the analyst focus, concerns, and motives.",
-    )
-    @property
-    def persona(self) -> str:
-        return f"Name: {self.name}\nRole: {self.role}\nAffiliation: {self.affiliation}\nDescription: {self.description}\n"
-
-class Perspectives(BaseModel):
-    analysts: List[Analyst] = Field(
-        description="Comprehensive list of analysts with their roles and affiliations.",
-    )
-
-class GenerateAnalystsState(TypedDict):
-    topic: str # Research topic
-    max_analysts: int # Number of analysts
-    # human_analyst_feedback: str # Human feedback
-    human_analyst_feedback: Annotated[List[str], add]  # Human feedback
-    # analysts: List[Analyst] # Analyst asking questions
-    analysts: Annotated[List[Analyst], add] 
-    final_analysts: List[Analyst] #= Field(..., min_items=3, max_items=3, description="Exactly 3 related sub-topics")# Analyst asking questions
 
 analyst_instructions="""You are tasked with creating a set of AI analyst personas. Follow these instructions carefully:
 
@@ -74,7 +41,6 @@ def create_analysts(state: GenerateAnalystsState):
     topic=state['topic']
     max_analysts=state['max_analysts']
     # human_analyst_feedback=state.get('human_analyst_feedback', '')
-    # import pdb; pdb.set_trace()
     human_analyst_feedback=state.get('human_analyst_feedback', [])
     if human_analyst_feedback:
         human_analyst_feedback = human_analyst_feedback[-1]
