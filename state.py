@@ -45,3 +45,15 @@ class InterviewState(MessagesState):
 
 class SearchQuery(BaseModel):
     search_query: str = Field(None, description="Search query for retrieval.")
+
+class ResearchState(MessagesState):
+    topic: str # Research topic
+    max_analysts: int # Number of analysts
+    human_analyst_feedback: Annotated[List[str], add]  # Human feedback
+    analysts: Annotated[List[Analyst], add] 
+    final_analysts: List[Analyst]
+    analyst: Analyst # Analyst asking questions
+    max_num_turns: int # Number turns of conversation
+    context: Annotated[list, add] # Source docs
+    interview: str # Interview transcript
+    sections: list

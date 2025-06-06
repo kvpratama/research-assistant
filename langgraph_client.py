@@ -85,6 +85,10 @@ class LangGraphClient:
             "assistant_id": self.assistant_id,
             "input": input_data,
             "stream_mode": ["updates"],
+            "stream_subgraphs": True,
+            "command": {
+                "resume": input_data,
+            }
         }
 
         with requests.post(url, headers=headers, json=payload, stream=True) as response:

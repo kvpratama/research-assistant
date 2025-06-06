@@ -80,7 +80,8 @@ def generate_answer(state: InterviewState):
 
     # Answer question
     answer_instructions = load_prompt("answer_instructions")
-    system_message = answer_instructions.format(goals=analyst["description"], context=context)
+    # system_message = answer_instructions.format(goals=analyst["description"], context=context)
+    system_message = answer_instructions.format(goals=analyst.description, context=context)
     human_message = HumanMessage(content=messages[-1].content)
     answer = llm.invoke([SystemMessage(content=system_message)] + [human_message])
             
@@ -145,7 +146,8 @@ def write_section(state: InterviewState):
    
     # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
     section_writer_instructions = load_prompt("section_writer_instructions")
-    system_message = section_writer_instructions.format(focus=analyst["description"])
+    # system_message = section_writer_instructions.format(focus=analyst["description"])
+    system_message = section_writer_instructions.format(focus=analyst.description)
     section = llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {interview}")]) 
                 
     # Append it to state
