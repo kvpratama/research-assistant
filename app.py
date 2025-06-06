@@ -67,18 +67,10 @@ if st.session_state["response"]:
         st.dataframe(data_final, use_container_width=True)
 
         if st.button("Conduct Interview"):
-            # logger.info("Initializing LangGraphClient...")
-            # st.session_state["client_interview"] = LangGraphClient()
-            # st.session_state["client_interview"].assistant_id = st.session_state["client"].create_assistant("conduct_interviews")
-            # st.session_state["response_interview"] = None
             logger.info("Conducting Interview...")
             with st.spinner("Conducting Interview..."):
                 # Prepare input data for backend
-                input_data = {
-                    # "messages": ["Ask questions"],
-                    # "topic": st.session_state["response"]["topic"],
-                    # "analyst": final_analysts[0],
-                }
+                input_data = {}
                 with st.container(height=300):
                     st.write_stream(st.session_state["client"].run_graph_stream(input_data=input_data))
                 

@@ -43,6 +43,9 @@ class InterviewState(MessagesState):
     interview: str # Interview transcript
     sections: list # Final key we duplicate in outer state for Send() API
 
+class InterviewStateOutput(MessagesState):
+    sections: list # Final key we duplicate in outer state for Send() API
+
 class SearchQuery(BaseModel):
     search_query: str = Field(None, description="Search query for retrieval.")
 
@@ -52,8 +55,8 @@ class ResearchState(MessagesState):
     human_analyst_feedback: Annotated[List[str], add]  # Human feedback
     analysts: Annotated[List[Analyst], add] 
     final_analysts: List[Analyst]
-    analyst: Analyst # Analyst asking questions
-    max_num_turns: int # Number turns of conversation
-    context: Annotated[list, add] # Source docs
-    interview: str # Interview transcript
-    sections: list
+    sections: Annotated[list, add]
+    introduction: str # Introduction for the final report
+    content: str # Content for the final report
+    conclusion: str # Conclusion for the final report
+    final_report: str # Final report

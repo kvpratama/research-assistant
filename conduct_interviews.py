@@ -1,7 +1,7 @@
 from langgraph.graph import START, END, StateGraph
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from llm_model import llm_versatile
-from state import InterviewState, ResearchState
+from state import InterviewState, ResearchState, InterviewStateOutput
 from generate_answer import search_web, search_wikipedia, generate_answer, save_interview, write_section, route_messages
 from prompts import load_prompt
 from langgraph.constants import Send
@@ -43,7 +43,7 @@ def initiate_all_interviews(state: ResearchState):
     # return {"conduct_interview": [Send("conduct_interview", {"analyst": analyst,
     #                                     "messages": []}) for analyst in state["final_analysts"]]}
 
-interview_builder = StateGraph(InterviewState)
+interview_builder = StateGraph(InterviewState, output=InterviewStateOutput)
 interview_builder.add_node("generate_question", generate_question)
 interview_builder.add_node("search_web", search_web)
 interview_builder.add_node("search_wikipedia", search_wikipedia)

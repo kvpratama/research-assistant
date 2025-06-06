@@ -13,7 +13,6 @@ from langchain_community.document_loaders import WikipediaLoader
 import time
 
 
-
 def search_web(state: InterviewState):
     
     """ Retrieve docs from web search """
@@ -39,6 +38,7 @@ def search_web(state: InterviewState):
     )
 
     return {"context": [formatted_search_docs]} 
+
 
 def search_wikipedia(state: InterviewState):
     
@@ -88,9 +88,10 @@ def generate_answer(state: InterviewState):
     # Name the message as coming from the expert
     answer.name = "expert"
     
-    time.sleep(10)  # Simulate a delay for the answer generation
+    time.sleep(20)  # Simulate a delay for the answer generation
     # Append it to state
     return {"messages": [answer]}
+
 
 def route_messages(state: InterviewState, 
                    name: str = "expert"):
@@ -119,7 +120,6 @@ def route_messages(state: InterviewState,
     return "generate_question"
 
 
-
 def save_interview(state: InterviewState):
     
     """ Save interviews """
@@ -138,7 +138,7 @@ def write_section(state: InterviewState):
 
     """ Node to answer a question """
 
-    time.sleep(10)  # Simulate a delay for the answer generation
+    time.sleep(20)  # Simulate a delay for the answer generation
     # Get state
     interview = state["interview"]
     context = state["context"]

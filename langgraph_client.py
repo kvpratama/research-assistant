@@ -1,6 +1,5 @@
 import requests
 import json
-import time
 
 class LangGraphClient:
     def __init__(self, base_url="http://127.0.0.1:2024"):
@@ -116,13 +115,4 @@ class LangGraphClient:
                         section = data["write_section"]["sections"][0]
                         print(f"Section: {section}")
                         yield f"Section:\n {section}\n\n --- \n\n"
-                    # yield f"{data}\n"
-    
-
-# Example usage
-def main():
-    client = LangGraphClient()
-    
-
-if __name__ == "__main__":
-    main()
+                        
