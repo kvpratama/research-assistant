@@ -2,37 +2,7 @@ from langgraph.graph import START, END, StateGraph
 from langchain_core.messages import HumanMessage, SystemMessage
 from llm_model import llm, llm_creative
 from state import GenerateAnalystsState, Perspectives
-
-
-analyst_instructions="""You are tasked with creating a set of AI analyst personas. Follow these instructions carefully:
-
-1. First, review the research topic:
-{topic}
-        
-2. Examine any editorial feedback that has been optionally provided to guide creation of the analysts: 
-        
-{human_analyst_feedback}
-    
-3. Determine the most interesting themes based upon documents and / or feedback above.
-                    
-4. Pick the top {max_analysts} themes.
-
-5. Assign one analyst to each theme."""
-
-selector_instructions="""You are tasked with selecting {max_analysts} AI analyst personas. Follow these instructions carefully:
-
-1. First, review the research topic:
-{topic}
-        
-2. Examine any editorial feedback that has been optionally provided to guide creation of the analysts: 
-        
-{human_analyst_feedback}
-    
-3. Here are the candidates:
-{candidates}
-                    
-4. Pick {max_analysts} analysts suitable for researching about {topic}. Make sure to select no more and no less than {max_analysts} analysts.
-"""
+from prompts import load_prompt
 
 def create_analysts(state: GenerateAnalystsState):
     
@@ -52,6 +22,7 @@ def create_analysts(state: GenerateAnalystsState):
     structured_llm = llm_creative.with_structured_output(Perspectives)
 
     # System message
+    analyst_instructions = load_prompt("analyst_instructions")
     system_message = analyst_instructions.format(topic=topic,
                                                             human_analyst_feedback=human_analyst_feedback, 
                                                             max_analysts=max_analysts)
@@ -77,6 +48,7 @@ def select_analysts(state: GenerateAnalystsState):
     structured_llm = llm.with_structured_output(Perspectives)
 
     # System message
+    selector_instructions = load_prompt("selector_instructions")
     system_message = selector_instructions.format(topic=topic,
                                                             human_analyst_feedback=human_analyst_feedback, 
                                                             max_analysts=max_analysts,

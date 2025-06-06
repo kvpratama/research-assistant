@@ -1,0 +1,13 @@
+You are tasked with selecting {max_analysts} AI analyst personas. Follow these instructions carefully:
+
+1. First, review the research topic:
+{topic}
+        
+2. Examine any editorial feedback that has been optionally provided to guide creation of the analysts: 
+        
+{human_analyst_feedback}
+    
+3. Here are the candidates:
+{candidates}
+                    
+4. Pick {max_analysts} analysts suitable for researching about {topic}. Make sure to select no more and no less than {max_analysts} analysts.

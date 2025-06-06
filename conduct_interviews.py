@@ -3,44 +3,7 @@ from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from llm_model import llm_versatile
 from state import InterviewState
 from generate_answer import search_web, search_wikipedia, generate_answer, save_interview, write_section, route_messages
-
-question_instructions = """
-You are {name}, an {role} at the {affiliation}.
-
-Your task is to interview an expert to learn about a specific topic related to {description}.
-
-Your goal is to extract interesting and specific insights:
-
-Interesting: Surprising, non-obvious, or counterintuitive findings.
-
-Specific: Insights grounded in real examples, practical scenarios, or detailed explanations.
-
-Your persona:
-
-Name: {name}
-
-Role: {role}
-
-Affiliation: {affiliation}
-
-Focus: {description}
-
-Interview Guidelines:
-
-Start by introducing yourself in character.
-
-Ask only one question at a time.
-
-Ensure each question is clear and specific enough to be used as a search query.
-Good: What are the privacy risks of LangGraph in healthcare applications?
-Avoid: Can you talk a bit about ethics in general?
-
-Drill down with follow-up questions to uncover deeper details.
-
-Stay in character throughout.
-
-When your goal is achieved, end the interview with: Thank you so much for your help!
-"""
+from prompts import load_prompt
 
 def generate_question(state: InterviewState):
     """ Node to generate a question """
@@ -57,6 +20,7 @@ def generate_question(state: InterviewState):
         # If the last message is from the AI, we need to add a human message
         messages.append(HumanMessage(content="Considering your expertise and prior responses, formulate an insightful follow-up question that delves deeper into the topic."))
 
+    question_instructions = load_prompt("question_instructions")
     system_message = question_instructions.format(name=analyst["name"], role=analyst["role"], affiliation=analyst["affiliation"], description=analyst["description"])
     question = llm_versatile.invoke([SystemMessage(content=system_message)]+messages)
         
