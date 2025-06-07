@@ -20,6 +20,15 @@ class Analyst(BaseModel):
     @property
     def persona(self) -> str:
         return f"Name: {self.name}\nRole: {self.role}\nAffiliation: {self.affiliation}\nDescription: {self.description}\n"
+    
+    @property
+    def to_dict(self) -> dict:
+        return {
+            "name": self.name,
+            "role": self.role,
+            "affiliation": self.affiliation,
+            "description": self.description,
+        }
 
 class Perspectives(BaseModel):
     analysts: List[Analyst] = Field(

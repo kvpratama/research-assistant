@@ -1,9 +1,63 @@
 import requests
 import json
 import logging
+import uuid
+from graph import graph_memory
 
 # Configure logger
 logger = logging.getLogger(__name__)
+
+class LangGraphLocalClient:
+    def __init__(self):
+        logger.info(f"Initializing LangGraphLocalClient")
+        self.thread = self.create_thread()
+        logger.debug(f"Client initialized with thread: {self.thread}")
+    
+    def create_thread(self):
+        """Create a new thread"""
+        return {"configurable": {"thread_id": str(uuid.uuid4())}}
+    
+    def run_graph(self, input_data):
+        """Run the graph with input data"""
+        logger.info("Starting graph execution")
+        logger.debug(f"Thread: {self.thread}")
+        logger.debug(f"Input data: {json.dumps(input_data, indent=2)}")
+        response = graph_memory.invoke(input_data, self.thread)
+        return response
+    
+    def run_graph_resume(self, input_data):
+        """Resume graph execution with updated input data"""
+        logger.info("Resuming graph execution with updated input")
+        logger.debug(f"Thread: {self.thread}")
+        logger.debug(f"Resume data: {json.dumps(input_data, indent=2)}")
+        
+        graph_memory.update_state(self.thread, input_data)
+        response = graph_memory.invoke(None, self.thread)
+        return response
+
+    def run_graph_stream(self, input_data):
+        """Run graph and stream the results"""
+        logger.info("Starting graph stream execution")
+        logger.debug(f"Thread: {self.thread}")
+        logger.debug(f"Input data: {json.dumps(input_data, indent=2)}")
+        
+        # graph_memory.update_state(self.thread, input_data, as_node="human_feedback")
+        for event in graph_memory.stream(None, self.thread, subgraphs=True, stream_mode="updates"):
+            _, data = event  # event[1] → data
+            if data.get('generate_question', ''):
+                print("Question: ", data.get('generate_question', '')["messages"][0].content)
+                yield data.get('generate_question', '')["messages"][0].content + "\n\n --- \n\n"
+            if data.get('generate_answer', ''):
+                print("Answer: ", data.get('generate_answer', '')["messages"][0].content)
+                yield data.get('generate_answer', '')["messages"][0].content + "\n\n --- \n\n"
+            if data.get('write_section', ''):
+                print("Section: ", data.get('write_section', '')["messages"][0].content)
+                yield data.get('write_section', '')["messages"][0].content + "\n\n --- \n\n"
+
+    def get_state(self):
+        """Get the current state of the thread"""
+        return graph_memory.get_state(self.thread)
+        
 
 class LangGraphClient:
     def __init__(self, base_url="http://127.0.0.1:2024"):

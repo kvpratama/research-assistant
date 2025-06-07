@@ -3,6 +3,7 @@ from state import ResearchState
 from create_analysts import create_analysts, human_feedback, select_analysts, should_continue
 from conduct_interviews import interview_builder, initiate_all_interviews
 from generate_report import write_report, write_introduction, write_conclusion, finalize_report
+from langgraph.checkpoint.memory import MemorySaver
 
 builder = StateGraph(ResearchState)
 builder.add_node("create_analysts", create_analysts)
@@ -28,5 +29,6 @@ builder.add_edge(["write_conclusion", "write_report", "write_introduction"], "fi
 builder.add_edge("finalize_report", END)
 
 # Compile
-# memory = MemorySaver()
+memory = MemorySaver()
+graph_memory = builder.compile(interrupt_before=['human_feedback', 'human_conduct_interview'], checkpointer=memory)
 graph = builder.compile(interrupt_before=['human_feedback', 'human_conduct_interview'])
