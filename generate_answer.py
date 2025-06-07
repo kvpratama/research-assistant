@@ -16,7 +16,7 @@ import time
 def search_web(state: InterviewState):
     
     """ Retrieve docs from web search """
-    time.sleep(5)
+    time.sleep(15) # to prevent rate limit
     # Search query
     messages = state["messages"]
     search_instructions = load_prompt("search_instructions")
@@ -44,7 +44,7 @@ def search_wikipedia(state: InterviewState):
     
     """ Retrieve docs from wikipedia """
 
-    time.sleep(10)  # Simulate a delay for the search operation
+    time.sleep(20)  # to prevent rate limit
     # Search query
     messages = state["messages"]
     search_instructions = load_prompt("search_instructions")
@@ -88,7 +88,7 @@ def generate_answer(state: InterviewState):
     # Name the message as coming from the expert
     answer.name = "expert"
     
-    time.sleep(20)  # Simulate a delay for the answer generation
+    time.sleep(30)  # to prevent rate limit
     # Append it to state
     return {"messages": [answer]}
 
@@ -138,7 +138,7 @@ def write_section(state: InterviewState):
 
     """ Node to answer a question """
 
-    time.sleep(20)  # Simulate a delay for the answer generation
+    time.sleep(20)  # to prevent rate limit
     # Get state
     interview = state["interview"]
     context = state["context"]

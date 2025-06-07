@@ -7,7 +7,7 @@ from llm_model import llm, llm_versatile, llm_creative
 
 def write_report(state: ResearchState):
     # Full set of sections
-    time.sleep(15)  # Simulate a delay for the answer generation
+    time.sleep(15)  # to prevent rate limit
     sections = state["sections"]
     topic = state["topic"]
 
@@ -22,7 +22,7 @@ def write_report(state: ResearchState):
 
 
 def write_introduction(state: ResearchState):
-    time.sleep(15)  # Simulate a delay for the answer generation
+    time.sleep(15)  # to prevent rate limit
     # Full set of sections
     sections = state["sections"]
     topic = state["topic"]
@@ -38,7 +38,7 @@ def write_introduction(state: ResearchState):
 
 
 def write_conclusion(state: ResearchState):
-    time.sleep(15)  # Simulate a delay for the answer generation
+    time.sleep(15)  # to prevent rate limit
     # Full set of sections
     sections = state["sections"]
     topic = state["topic"]
