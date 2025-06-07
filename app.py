@@ -74,6 +74,7 @@ if st.session_state["response"]:
                 with st.container(height=300):
                     st.write_stream(st.session_state["client"].run_graph_stream(input_data=input_data))
             
+            logger.info("Research completed, updating final report...")
             client_state = st.session_state["client"].get_state()
             final_report = client_state["final_report"]
             st.header("Final Report")

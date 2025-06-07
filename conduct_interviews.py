@@ -1,3 +1,4 @@
+import logging
 from langgraph.graph import START, END, StateGraph
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from llm_model import llm_versatile
@@ -6,12 +7,13 @@ from generate_answer import search_web, search_wikipedia, generate_answer, save_
 from prompts import load_prompt
 from langgraph.constants import Send
 
+logger = logging.getLogger(__name__)
+
 def generate_question(state: InterviewState):
     """ Node to generate a question """
 
     # Get state
-    print("Generating question")
-    print("State:", state)
+    logger.debug("Generating question...")
     analyst = state["analyst"]
     messages = state["messages"]
     topic = state["topic"]
@@ -35,13 +37,10 @@ def generate_question(state: InterviewState):
 def initiate_all_interviews(state: ResearchState):
     """ This is the "map" step where we run each interview sub-graph using Send API """
 
-    print("Initiating interviews for topic:", state["topic"])
-    print("Final analysts:", state["final_analysts"])
+    logger.info(f"Initiating interviews for topic: {state['topic']}")
+    logger.debug(f"Final analysts: {state['final_analysts']}")
 
-    # return {"analyst": state["final_analysts"][0]}
     return [Send("conduct_interview", {"analyst": analyst, "topic": state["topic"]}) for analyst in state["final_analysts"]]
-    # return {"conduct_interview": [Send("conduct_interview", {"analyst": analyst,
-    #                                     "messages": []}) for analyst in state["final_analysts"]]}
 
 interview_builder = StateGraph(InterviewState, output=InterviewStateOutput)
 interview_builder.add_node("generate_question", generate_question)

@@ -33,7 +33,7 @@ class GenerateAnalystsState(TypedDict):
     human_analyst_feedback: Annotated[List[str], add]  # Human feedback
     # analysts: List[Analyst] # Analyst asking questions
     analysts: Annotated[List[Analyst], add] 
-    final_analysts: List[Analyst] #= Field(..., min_items=3, max_items=3, description="Exactly 3 related sub-topics")# Analyst asking questions
+    final_analysts: List[Analyst]
 
 class InterviewState(MessagesState):
     topic: str # Research topic
@@ -41,7 +41,7 @@ class InterviewState(MessagesState):
     context: Annotated[list, add] # Source docs
     analyst: Analyst # Analyst asking questions
     interview: str # Interview transcript
-    sections: list # Final key we duplicate in outer state for Send() API
+    # sections: list # Final key we duplicate in outer state for Send() API
 
 class InterviewStateOutput(MessagesState):
     sections: list # Final key we duplicate in outer state for Send() API

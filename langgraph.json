@@ -1,8 +1,6 @@
 {
   "dockerfile_lines": [],
   "graphs": {
-    "create_analysts": "./create_analysts.py:graph",
-    "conduct_interviews": "./conduct_interviews.py:interview_graph",
     "research": "./graph.py:graph"
   },
   "env": "./.env",
