@@ -14,12 +14,12 @@ if "client" not in st.session_state:
     st.session_state["client"].assistant_id = st.session_state["client"].create_assistant("research")
     st.session_state["response"] = None
 
-st.title("AI Analyst Persona Generator")
+st.title("AI Research Assistant v1.0")
 
 if not st.session_state["response"]:
     # User inputs
     topic = st.text_area("Enter research topic:", height=100, value="Climate change")
-    max_analysts = st.number_input("Number of analysts:", min_value=1, max_value=10, value=3)
+    max_analysts = st.number_input("Number of analysts:", min_value=1, max_value=3, value=3)
 
     if st.button("Generate Analysts"):
         logger.info("Generating analysts...")
@@ -30,7 +30,7 @@ if not st.session_state["response"]:
                 "max_analysts": max_analysts,
             }
             st.session_state["response"] = st.session_state["client"].run_graph(input_data=input_data)
-            st.rerun() 
+            st.rerun()
             
 if st.session_state["response"]:
     if "final_analysts" not in st.session_state["response"]:
@@ -66,11 +66,16 @@ if st.session_state["response"]:
         data_final.index += 1
         st.dataframe(data_final, use_container_width=True)
 
-        if st.button("Conduct Interview"):
-            logger.info("Conducting Interview...")
-            with st.spinner("Conducting Interview..."):
+        if st.button("Start Research"):
+            logger.info("Starting research...")
+            with st.spinner("Starting research..."):
                 # Prepare input data for backend
                 input_data = {}
                 with st.container(height=300):
                     st.write_stream(st.session_state["client"].run_graph_stream(input_data=input_data))
+            
+            client_state = st.session_state["client"].get_state()
+            final_report = client_state["final_report"]
+            st.header("Final Report")
+            st.markdown(final_report)
                 

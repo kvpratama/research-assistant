@@ -115,4 +115,8 @@ class LangGraphClient:
                         section = data["write_section"]["sections"][0]
                         print(f"Section: {section}")
                         yield f"Section:\n {section}\n\n --- \n\n"
-                        
+
+    def get_state(self):
+        url = f"{self.base_url}/threads/{self.thread_id}/state"
+        state = requests.get(f"http://127.0.0.1:2024/threads/{self.thread_id}/state")
+        return state.json()["values"]
