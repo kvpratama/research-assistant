@@ -1,6 +1,6 @@
 import logging
 from langchain_core.messages import HumanMessage, SystemMessage
-from llm_model import llm, llm_creative
+from llm_model import get_creative_llm, get_default_llm
 from state import GenerateAnalystsState, Perspectives
 from prompts import load_prompt
 
@@ -25,7 +25,7 @@ def create_analysts(state: GenerateAnalystsState):
                 
     # Enforce structured output
     # structured_llm = llm.with_structured_output(Perspectives)
-    structured_llm = llm_creative.with_structured_output(Perspectives)
+    structured_llm = get_creative_llm().with_structured_output(Perspectives)
 
     # System message
     analyst_instructions = load_prompt("analyst_instructions")
@@ -61,7 +61,7 @@ def select_analysts(state: GenerateAnalystsState):
     logger.debug(f"Total candidates text length: {len(candidates)} characters")
                 
     # Enforce structured output
-    structured_llm = llm.with_structured_output(Perspectives)
+    structured_llm = get_default_llm().with_structured_output(Perspectives)
 
     # System message
     selector_instructions = load_prompt("selector_instructions")

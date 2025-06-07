@@ -68,7 +68,7 @@ if st.session_state["response"]:
 
         if st.button("Start Research"):
             logger.info("Starting research...")
-            with st.spinner("Starting research..."):
+            with st.spinner("Conducting research..."):
                 # Prepare input data for backend
                 input_data = {}
                 with st.container(height=300):

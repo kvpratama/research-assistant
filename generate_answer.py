@@ -1,6 +1,6 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from state import InterviewState, SearchQuery
-from llm_model import llm, llm_creative
+from llm_model import get_default_llm, get_versatile_llm, get_creative_llm
 from langchain_core.messages import get_buffer_string
 from langgraph.graph import START, END, StateGraph
 from prompts import load_prompt
@@ -21,7 +21,7 @@ def search_web(state: InterviewState):
     messages = state["messages"]
     search_instructions = load_prompt("search_instructions")
     system_message = search_instructions.format(search_engine="tavily")
-    structured_llm = llm_creative.with_structured_output(SearchQuery)
+    structured_llm = get_creative_llm().with_structured_output(SearchQuery)
     # search_query = structured_llm.invoke([search_instructions]+state['messages'])
     human_message = HumanMessage(content=messages[-1].content)
     search_query = structured_llm.invoke([SystemMessage(content=system_message)] + [human_message])
@@ -49,7 +49,7 @@ def search_wikipedia(state: InterviewState):
     messages = state["messages"]
     search_instructions = load_prompt("search_instructions")
     system_message = search_instructions.format(search_engine="wikipedia")
-    structured_llm = llm.with_structured_output(SearchQuery)
+    structured_llm = get_versatile_llm().with_structured_output(SearchQuery)
     # search_query = structured_llm.invoke([search_instructions]+state['messages'])
     human_message = HumanMessage(content=messages[-1].content)
     search_query = structured_llm.invoke([SystemMessage(content=system_message)] + [human_message])
@@ -83,7 +83,7 @@ def generate_answer(state: InterviewState):
     # system_message = answer_instructions.format(goals=analyst["description"], context=context)
     system_message = answer_instructions.format(goals=analyst.description, context=context)
     human_message = HumanMessage(content=messages[-1].content)
-    answer = llm.invoke([SystemMessage(content=system_message)] + [human_message])
+    answer = get_default_llm().invoke([SystemMessage(content=system_message)] + [human_message])
             
     # Name the message as coming from the expert
     answer.name = "expert"
@@ -148,7 +148,7 @@ def write_section(state: InterviewState):
     section_writer_instructions = load_prompt("section_writer_instructions")
     # system_message = section_writer_instructions.format(focus=analyst["description"])
     system_message = section_writer_instructions.format(focus=analyst.description)
-    section = llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {interview}")]) 
+    section = get_default_llm().invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Use this source to write your section: {interview}")]) 
                 
     # Append it to state
     return {"sections": [section.content]}
