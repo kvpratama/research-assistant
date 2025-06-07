@@ -17,6 +17,7 @@ def generate_question(state: InterviewState):
     analyst = state["analyst"]
     messages = state["messages"]
     topic = state["topic"]
+    google_api_key = state["google_api_key"]
 
     # If no messages, start with a system message
     if not messages:
@@ -28,7 +29,7 @@ def generate_question(state: InterviewState):
     question_instructions = load_prompt("question_instructions")
     # system_message = question_instructions.format(name=analyst["name"], role=analyst["role"], affiliation=analyst["affiliation"], description=analyst["description"])
     system_message = question_instructions.format(name=analyst.name, role=analyst.role, affiliation=analyst.affiliation, description=analyst.description)
-    question = get_versatile_llm().invoke([SystemMessage(content=system_message)]+messages)
+    question = get_versatile_llm(google_api_key).invoke([SystemMessage(content=system_message)]+messages)
         
     # Write messages to state
     return {"messages": [question]}
@@ -40,7 +41,13 @@ def initiate_all_interviews(state: ResearchState):
     logger.info(f"Initiating interviews for topic: {state['topic']}")
     logger.debug(f"Final analysts: {state['final_analysts']}")
 
-    return [Send("conduct_interview", {"analyst": analyst, "topic": state["topic"]}) for analyst in state["final_analysts"]]
+    return [Send("conduct_interview", {
+                                        "analyst": analyst, 
+                                        "topic": state["topic"], 
+                                        "google_api_key": state["google_api_key"], 
+                                        "tavily_api_key": state["tavily_api_key"]
+                                        }
+                    ) for analyst in state["final_analysts"]]
 
 interview_builder = StateGraph(InterviewState, output=InterviewStateOutput)
 interview_builder.add_node("generate_question", generate_question)

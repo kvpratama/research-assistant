@@ -10,9 +10,10 @@ logger = logging.getLogger(__name__)
 def create_analysts(state: GenerateAnalystsState):
     """ Create analysts """
     logger.info("Starting to create analysts")
-    
+
     topic = state['topic']
     max_analysts = state['max_analysts']
+    google_api_key = state['google_api_key']
     logger.debug(f"Topic: {topic}, Max analysts: {max_analysts}")
     
     human_analyst_feedback = state.get('human_analyst_feedback', [])
@@ -25,7 +26,7 @@ def create_analysts(state: GenerateAnalystsState):
                 
     # Enforce structured output
     # structured_llm = llm.with_structured_output(Perspectives)
-    structured_llm = get_creative_llm().with_structured_output(Perspectives)
+    structured_llm = get_creative_llm(google_api_key).with_structured_output(Perspectives)
 
     # System message
     analyst_instructions = load_prompt("analyst_instructions")
@@ -49,6 +50,7 @@ def select_analysts(state: GenerateAnalystsState):
     
     topic = state['topic']
     max_analysts = state['max_analysts']
+    google_api_key = state['google_api_key']
     logger.debug(f"Topic: {topic}, Max analysts to select: {max_analysts}")
     
     human_analyst_feedback = state.get('human_analyst_feedback', [])
@@ -61,7 +63,7 @@ def select_analysts(state: GenerateAnalystsState):
     logger.debug(f"Total candidates text length: {len(candidates)} characters")
                 
     # Enforce structured output
-    structured_llm = get_default_llm().with_structured_output(Perspectives)
+    structured_llm = get_default_llm(google_api_key).with_structured_output(Perspectives)
 
     # System message
     selector_instructions = load_prompt("selector_instructions")
@@ -74,7 +76,7 @@ def select_analysts(state: GenerateAnalystsState):
     analysts = structured_llm.invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Pick the {max_analysts} analysts.")])
     
     # Write the list of analysis to state
-    return {"final_analysts": analysts.analysts}
+    return {"final_analysts": analysts.analysts[:max_analysts]}
 
 def human_feedback(state: GenerateAnalystsState):
     """ No-op node that should be interrupted on """

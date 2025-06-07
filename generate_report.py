@@ -10,6 +10,7 @@ def write_report(state: ResearchState):
     time.sleep(15)  # to prevent rate limit
     sections = state["sections"]
     topic = state["topic"]
+    google_api_key = state["google_api_key"]
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -17,7 +18,7 @@ def write_report(state: ResearchState):
     # Summarize the sections into a final report
     report_writer_instructions = load_prompt("report_writer_instructions")
     system_message = report_writer_instructions.format(topic=topic, context=formatted_str_sections)    
-    report = get_default_llm().invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Write a report based upon these memos.")]) 
+    report = get_default_llm(google_api_key).invoke([SystemMessage(content=system_message)]+[HumanMessage(content=f"Write a report based upon these memos.")]) 
     return {"content": report.content}
 
 
@@ -26,6 +27,7 @@ def write_introduction(state: ResearchState):
     # Full set of sections
     sections = state["sections"]
     topic = state["topic"]
+    google_api_key = state["google_api_key"]
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -33,7 +35,7 @@ def write_introduction(state: ResearchState):
     # Summarize the sections into a final report
     intro_conclusion_instructions = load_prompt("intro_conclusion_instructions")
     instructions = intro_conclusion_instructions.format(topic=topic, formatted_str_sections=formatted_str_sections)    
-    intro = get_creative_llm().invoke([instructions]+[HumanMessage(content=f"Write the report introduction")]) 
+    intro = get_creative_llm(google_api_key).invoke([instructions]+[HumanMessage(content=f"Write the report introduction")]) 
     return {"introduction": intro.content}
 
 
@@ -42,6 +44,7 @@ def write_conclusion(state: ResearchState):
     # Full set of sections
     sections = state["sections"]
     topic = state["topic"]
+    google_api_key = state["google_api_key"]
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -49,7 +52,7 @@ def write_conclusion(state: ResearchState):
     # Summarize the sections into a final report
     intro_conclusion_instructions = load_prompt("intro_conclusion_instructions")
     instructions = intro_conclusion_instructions.format(topic=topic, formatted_str_sections=formatted_str_sections)    
-    conclusion = get_versatile_llm().invoke([instructions]+[HumanMessage(content=f"Write the report conclusion")]) 
+    conclusion = get_versatile_llm(google_api_key).invoke([instructions]+[HumanMessage(content=f"Write the report conclusion")]) 
     return {"conclusion": conclusion.content}
 
 

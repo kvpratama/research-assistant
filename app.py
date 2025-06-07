@@ -1,4 +1,5 @@
 import streamlit as st
+import os
 from langgraph_client import LangGraphClient
 import pandas as pd
 import logging
@@ -7,8 +8,28 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Get API Key from user
+if "api_key_entered" not in st.session_state:
+    st.session_state.api_key_entered = False
+
+if not st.session_state.api_key_entered:
+    with st.sidebar:
+        st.header("API Configuration")
+        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input")
+        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input")
+        if st.button("Set API Key"):
+            if google_api_key and tavily_api_key:
+                st.session_state["google_api_key"] = google_api_key
+                st.session_state["tavily_api_key"] = tavily_api_key
+                st.session_state.api_key_entered = True
+                st.success("API Key set successfully!") 
+                st.rerun()
+            else:
+                st.error("Please enter a valid API Key.") 
+    st.stop() 
+
 # Initialize client in session state if not present
-if "client" not in st.session_state:
+if "client" not in st.session_state and st.session_state.api_key_entered:
     logger.info("Initializing LangGraphClient...")
     st.session_state["client"] = LangGraphClient()
     st.session_state["client"].assistant_id = st.session_state["client"].create_assistant("research")
@@ -28,6 +49,8 @@ if not st.session_state["response"]:
             input_data = {
                 "topic": topic,
                 "max_analysts": max_analysts,
+                "google_api_key": st.session_state["google_api_key"],
+                "tavily_api_key": st.session_state["tavily_api_key"],
             }
             st.session_state["response"] = st.session_state["client"].run_graph(input_data=input_data)
             st.rerun()
