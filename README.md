@@ -70,7 +70,7 @@ Once all interviews are complete:
 
 ## Inspired By
 
-Based on research[Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models](https://arxiv.org/abs/2402.14207).
+Based on research [Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models](https://arxiv.org/abs/2402.14207).
 
 ---
 
