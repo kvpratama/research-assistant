@@ -13,7 +13,7 @@ def generate_question(state: InterviewState):
     """ Node to generate a question """
 
     # Get state
-    logger.debug("Generating question...")
+    logger.info("Generating question...")
     analyst = state["analyst"]
     messages = state["messages"]
     topic = state["topic"]
@@ -48,6 +48,7 @@ def initiate_all_interviews(state: ResearchState):
                                         "tavily_api_key": state["tavily_api_key"]
                                         }
                     ) for analyst in state["final_analysts"]]
+
 
 interview_builder = StateGraph(InterviewState, output=InterviewStateOutput)
 interview_builder.add_node("generate_question", generate_question)
