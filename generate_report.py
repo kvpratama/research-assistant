@@ -5,12 +5,12 @@ from langchain_core.messages import HumanMessage, SystemMessage
 from llm_model import get_default_llm, get_versatile_llm, get_creative_llm
 
 
-def write_report(state: ResearchState):
-    # Full set of sections
+def write_report(state: ResearchState, config: dict):
     time.sleep(15)  # to prevent rate limit
+
     sections = state["sections"]
     topic = state["topic"]
-    google_api_key = state["google_api_key"]
+    google_api_key = config["configurable"]["google_api_key"]
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -22,12 +22,12 @@ def write_report(state: ResearchState):
     return {"content": report.content}
 
 
-def write_introduction(state: ResearchState):
+def write_introduction(state: ResearchState, config: dict):
     time.sleep(15)  # to prevent rate limit
-    # Full set of sections
+    
     sections = state["sections"]
     topic = state["topic"]
-    google_api_key = state["google_api_key"]
+    google_api_key = config["configurable"]["google_api_key"]
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])
@@ -39,12 +39,12 @@ def write_introduction(state: ResearchState):
     return {"introduction": intro.content}
 
 
-def write_conclusion(state: ResearchState):
+def write_conclusion(state: ResearchState, config: dict):
     time.sleep(15)  # to prevent rate limit
-    # Full set of sections
+    
     sections = state["sections"]
     topic = state["topic"]
-    google_api_key = state["google_api_key"]
+    google_api_key = config["configurable"]["google_api_key"]
 
     # Concat all sections together
     formatted_str_sections = "\n\n".join([f"{section}" for section in sections])

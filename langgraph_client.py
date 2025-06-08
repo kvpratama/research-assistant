@@ -8,41 +8,46 @@ from graph import graph_memory
 logger = logging.getLogger(__name__)
 
 class LangGraphLocalClient:
-    def __init__(self):
+    def __init__(self, google_api_key, tavily_api_key):
         logger.info(f"Initializing LangGraphLocalClient")
-        self.thread = self.create_thread()
-        logger.debug(f"Client initialized with thread: {self.thread}")
-    
-    def create_thread(self):
-        """Create a new thread"""
-        return {"configurable": {"thread_id": str(uuid.uuid4())}}
+        self.config = self.create_config(google_api_key, tavily_api_key)
+        logger.debug(f"Client initialized with thread: {self.config}")
+        
+    def create_config(self, google_api_key, tavily_api_key):
+        """Create a new thread with configurable parameters"""
+        return {"configurable": 
+                    {
+                        "thread_id": str(uuid.uuid4()),
+                        "google_api_key": google_api_key,
+                        "tavily_api_key": tavily_api_key,
+                    }
+                }
     
     def run_graph(self, input_data):
         """Run the graph with input data"""
         logger.info("Starting graph execution")
-        logger.debug(f"Thread: {self.thread}")
+        logger.debug(f"Thread: {self.config}")
         logger.debug(f"Input data: {json.dumps(input_data, indent=2)}")
-        response = graph_memory.invoke(input_data, self.thread)
+        response = graph_memory.invoke(input_data, self.config)
         return response
     
     def run_graph_resume(self, input_data):
         """Resume graph execution with updated input data"""
         logger.info("Resuming graph execution with updated input")
-        logger.debug(f"Thread: {self.thread}")
+        logger.debug(f"Thread: {self.config}")
         logger.debug(f"Resume data: {json.dumps(input_data, indent=2)}")
         
-        graph_memory.update_state(self.thread, input_data)
-        response = graph_memory.invoke(None, self.thread)
+        graph_memory.update_state(self.config, input_data)
+        response = graph_memory.invoke(None, self.config)
         return response
 
     def run_graph_stream(self, input_data):
         """Run graph and stream the results"""
         logger.info("Starting graph stream execution")
-        logger.debug(f"Thread: {self.thread}")
+        logger.debug(f"Thread: {self.config}")
         logger.debug(f"Input data: {json.dumps(input_data, indent=2)}")
         
-        # graph_memory.update_state(self.thread, input_data, as_node="human_feedback")
-        for event in graph_memory.stream(None, self.thread, subgraphs=True, stream_mode="updates"):
+        for event in graph_memory.stream(None, self.config, subgraphs=True, stream_mode="updates"):
             _, data = event  # event[1] → data
             if data.get('generate_question', ''):
                 question = data.get('generate_question', '')["messages"][0].content
@@ -59,7 +64,7 @@ class LangGraphLocalClient:
 
     def get_state(self):
         """Get the current state of the thread"""
-        state_data = graph_memory.get_state(self.thread)[0]
+        state_data = graph_memory.get_state(self.config)[0]
         return state_data
         
 

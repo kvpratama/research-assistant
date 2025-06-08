@@ -1,19 +1,19 @@
 import logging
 from langchain_core.messages import HumanMessage, SystemMessage
-from llm_model import get_creative_llm, get_default_llm
+from llm_model import get_default_llm, get_creative_llm
 from state import GenerateAnalystsState, Perspectives
 from prompts import load_prompt
 
 # Configure logging
 logger = logging.getLogger(__name__)
 
-def create_analysts(state: GenerateAnalystsState):
+def create_analysts(state: GenerateAnalystsState, config: dict):
     """ Create analysts """
     logger.info("Starting to create analysts")
 
     topic = state['topic']
     max_analysts = state['max_analysts']
-    google_api_key = state['google_api_key']
+    google_api_key = config["configurable"]["google_api_key"]
     logger.debug(f"Topic: {topic}, Max analysts: {max_analysts}")
     
     human_analyst_feedback = state.get('human_analyst_feedback', [])
@@ -44,13 +44,13 @@ def create_analysts(state: GenerateAnalystsState):
         logger.error(f"Error generating analysts: {str(e)}", exc_info=True)
         raise
 
-def select_analysts(state: GenerateAnalystsState):
+def select_analysts(state: GenerateAnalystsState, config: dict):
     """ Select analysts """
     logger.info("Starting to select analysts")
     
     topic = state['topic']
     max_analysts = state['max_analysts']
-    google_api_key = state['google_api_key']
+    google_api_key = config["configurable"]["google_api_key"]
     logger.debug(f"Topic: {topic}, Max analysts to select: {max_analysts}")
     
     human_analyst_feedback = state.get('human_analyst_feedback', [])

@@ -9,7 +9,7 @@ from langgraph.constants import Send
 
 logger = logging.getLogger(__name__)
 
-def generate_question(state: InterviewState):
+def generate_question(state: InterviewState, config: dict):
     """ Node to generate a question """
 
     # Get state
@@ -17,7 +17,7 @@ def generate_question(state: InterviewState):
     analyst = state["analyst"]
     messages = state["messages"]
     topic = state["topic"]
-    google_api_key = state["google_api_key"]
+    google_api_key = config["configurable"]["google_api_key"]
 
     # If no messages, start with a system message
     if not messages:
@@ -43,9 +43,7 @@ def initiate_all_interviews(state: ResearchState):
 
     return [Send("conduct_interview", {
                                         "analyst": analyst, 
-                                        "topic": state["topic"], 
-                                        "google_api_key": state["google_api_key"], 
-                                        "tavily_api_key": state["tavily_api_key"]
+                                        "topic": state["topic"],
                                         }
                     ) for analyst in state["final_analysts"]]
 

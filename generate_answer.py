@@ -1,11 +1,8 @@
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
 from state import InterviewState, SearchQuery
-from llm_model import get_default_llm, get_versatile_llm, get_creative_llm
+from llm_model import get_default_llm, get_versatile_llm, get_creative_llm, get_tavily_search
 from langchain_core.messages import get_buffer_string
 from prompts import load_prompt
-# Web search tool
-from langchain_community.tools.tavily_search import TavilySearchResults
-# Wikipedia search tool
 from langchain_community.document_loaders import WikipediaLoader
 import time
 import logging
@@ -13,14 +10,15 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-def search_web(state: InterviewState):
+def search_web(state: InterviewState, config: dict):
     """ Retrieve docs from web search """
     logger.info("Entered search_web function.")
     try:
         time.sleep(15) # to prevent rate limit
+        
         messages = state["messages"]
-        google_api_key = state["google_api_key"]
-        tavily_api_key = state["tavily_api_key"]
+        google_api_key = config["configurable"]["google_api_key"]
+        tavily_api_key = config["configurable"]["tavily_api_key"]
         
         # Search query
         search_instructions = load_prompt("search_instructions")
@@ -32,7 +30,7 @@ def search_web(state: InterviewState):
         logger.info(f"Generated search query: {search_query.search_query}")
         
         # Search
-        tavily_search = TavilySearchResults(max_results=3, api_key=tavily_api_key)
+        tavily_search = get_tavily_search(tavily_api_key)
         search_docs = tavily_search.invoke(search_query.search_query)
         logger.info(f"Retrieved {len(search_docs)} documents from Tavily.")
         
@@ -50,13 +48,14 @@ def search_web(state: InterviewState):
         raise
 
 
-def search_wikipedia(state: InterviewState):
+def search_wikipedia(state: InterviewState, config: dict):
     """ Retrieve docs from wikipedia """
     logger.info("Entered search_wikipedia function.")
     try:
         time.sleep(20)  # to prevent rate limit
+
         messages = state["messages"]
-        google_api_key = state["google_api_key"]
+        google_api_key = config["configurable"]["google_api_key"]
         
         # Search query
         search_instructions = load_prompt("search_instructions")
@@ -86,7 +85,7 @@ def search_wikipedia(state: InterviewState):
         raise
 
 
-def generate_answer(state: InterviewState):
+def generate_answer(state: InterviewState, config: dict):
     logger.info("Entered generate_answer function.")
     try:
         """ Node to answer a question """
@@ -94,7 +93,7 @@ def generate_answer(state: InterviewState):
         analyst = state["analyst"]
         messages = state["messages"]
         context = state["context"]
-        google_api_key = state["google_api_key"]
+        google_api_key = config["configurable"]["google_api_key"]
 
         # Answer question
         answer_instructions = load_prompt("answer_instructions")
@@ -105,7 +104,6 @@ def generate_answer(state: InterviewState):
         # Name the message as coming from the expert
         answer.name = "expert"
         
-        time.sleep(30)  # to prevent rate limit
         # Append it to state
         logger.info("Exiting generate_answer function.")
         return {"messages": [answer]}
@@ -139,6 +137,7 @@ def route_messages(state: InterviewState,
             return 'save_interview'
         
         logger.info("Exiting route_messages function. Returning to generate_question.")
+        time.sleep(30)  # to prevent rate limit
         return "generate_question"
     except Exception as e:
         logger.error(f"Exception in route_messages: {e}")
@@ -163,7 +162,7 @@ def save_interview(state: InterviewState):
         raise
 
 
-def write_section(state: InterviewState):
+def write_section(state: InterviewState, config: dict):
     logger.info("Entered write_section function.")
     try:
         """ Node to answer a question """
@@ -173,7 +172,7 @@ def write_section(state: InterviewState):
         interview = state["interview"]
         context = state["context"]
         analyst = state["analyst"]
-        google_api_key = state["google_api_key"]
+        google_api_key = config["configurable"]["google_api_key"]
         
         # Write section using either the gathered source docs from interview (context) or the interview itself (interview)
         section_writer_instructions = load_prompt("section_writer_instructions")
