@@ -2,8 +2,6 @@ import os
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_community.tools.tavily_search import TavilySearchResults
 
-os.environ["LANGSMITH_PROJECT"] = "research-assistant"
-
 class LLMConfig:
     DEFAULT = "gemini-2.0-flash"
     VERSATILE = "gemini-2.0-flash-lite"
@@ -22,5 +20,6 @@ def get_creative_llm(google_api_key):
     return create_llm(LLMConfig.CREATIVE, temperature=1.0, google_api_key=google_api_key)
 
 def get_tavily_search(tavily_api_key):
-    return TavilySearchResults(max_results=3, api_key=tavily_api_key)
+    os.environ["TAVILY_API_KEY"] = tavily_api_key
+    return TavilySearchResults(max_results=3)
     
