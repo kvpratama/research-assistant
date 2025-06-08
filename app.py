@@ -14,8 +14,8 @@ if "api_key_entered" not in st.session_state:
 if not st.session_state.api_key_entered:
     with st.sidebar:
         st.header("API Configuration")
-        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input", value="AIzaSyDKr22mO6Wt9xfKWK1_AOgbkgKNqHV1ydg")
-        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input", value="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")
+        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input", value="")
+        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input", value="")
         if st.button("Set API Key"):
             if google_api_key and tavily_api_key:
                 logger.info("Initializing LangGraphLocalClient...")
