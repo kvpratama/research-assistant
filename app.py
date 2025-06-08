@@ -14,8 +14,8 @@ if "api_key_entered" not in st.session_state:
 if not st.session_state.api_key_entered:
     with st.sidebar:
         st.header("API Configuration")
-        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input", value="")
-        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input", value="")
+        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input", value="AIzaSyDKr22mO6Wt9xfKWK1_AOgbkgKNqHV1ydg")
+        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input", value="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")
         if st.button("Set API Key"):
             if google_api_key and tavily_api_key:
                 logger.info("Initializing LangGraphLocalClient...")
@@ -26,13 +26,81 @@ if not st.session_state.api_key_entered:
                 st.rerun()
             else:
                 st.error("Please enter a valid API Key.") 
+    st.markdown("""
+    # AI Research Assistant v1.0 (Mini)
+
+    Welcome to our lightweight, AI-powered research assistant!  
+    This app helps you explore complex topics quickly and thoroughly using a team of collaborative AI analysts.
+
+    ---
+
+    ## How It Works
+
+    ### 1. Enter a Topic
+    Start by providing a topic you'd like to research.
+
+    ### 2. Generate a Team of Analysts
+    With a single click, the system creates a **team of AI analysts**, each focusing on a specific sub-topic.
+
+    ### 3. Refine with Feedback
+    You can review the analysts' focus areas and provide feedback.  
+    The system uses your input to generate **additional analysts** to explore new directions or dig deeper.
+
+    ### 4. Automatic Selection
+    From the full set of analysts, the system automatically selects the **most relevant** ones for the research phase.
+
+    ---
+
+    ## AI Interviews
+
+    Each selected analyst:
+
+    - Conducts an **interview with an expert AI**, equipped with:
+      - A **web browser**
+      - **Wikipedia**
+      - _(More expert tools coming soon!)_
+
+    - Engages in a **dynamic, two-turn conversation** to explore the sub-topic
+      - Includes follow-up questions and clarifications
+      - Aims to extract rich, focused insights
+
+    - Runs **in parallel** with the other analysts to speed up the process
+
+    ---
+
+    ## Final Report
+
+    Once all interviews are complete:
+
+    - The system **synthesizes the insights** from every analyst
+    - Then generates a **final, structured report**  
+      - Clean, concise, and easy to read  
+      - Ready for review, sharing, or further analysis
+
+    ---
+
+    ## Inspired By
+
+    Based on research [Assisting in Writing Wikipedia-like Articles From Scratch with Large Language Models](https://arxiv.org/abs/2402.14207).
+    
+    """)
     st.stop() 
 
 st.title("AI Research Assistant v1.0")
 
 if not st.session_state["response"]:
+    with st.sidebar:
+        st.markdown("""
+        ### 1. Enter your research topic
+        - Start by providing a topic you'd like to research.
+
+        ### 2. Generate a Team of Analysts
+        - With a single click, the system creates a **team of AI analysts**, each focusing on a specific sub-topic.
+        """
+        )
+    
     # User inputs
-    topic = st.text_area("Enter research topic:", height=100, value="Climate change")
+    topic = st.text_area("Enter your research topic:", height=100, value="Renewable Energy Solutions for a Sustainable Future")
     max_analysts = st.number_input("Number of analysts:", min_value=1, max_value=3, value=3)
 
     if st.button("Generate Analysts"):
@@ -48,7 +116,18 @@ if not st.session_state["response"]:
             
 if st.session_state["response"]:
     if "final_analysts" not in st.session_state["response"]:
-        feedback = st.text_area("Optional editorial feedback:", height=70, value="Add tech specialist")
+        with st.sidebar:
+            st.markdown("""
+            ### 3. Refine with Feedback
+            - You can review the analysts' focus areas and provide feedback.  
+            - The system uses your input to generate **additional analysts** to explore new directions.
+            - **Or, if you're happy with the team, move on to analyst selection.**
+
+            ### 4. Automatic Selection
+            - From the full set of analysts, the system automatically selects the **most relevant** ones for the research phase.
+            """
+            )
+        feedback = st.text_area("Optional feedback:", height=70, value="Add more analysts focused on emerging technologies.")
         if st.button("Add Feedback"):
             logger.info("Adding feedback...")
             with st.spinner("Generating more analysts..."):
@@ -74,6 +153,38 @@ if st.session_state["response"]:
                 st.rerun()
     
     if "final_analysts" in st.session_state["response"]:
+        with st.sidebar:
+            st.markdown("""
+            ## AI Research and Interviews
+
+            Each selected analyst:
+
+            - Interviews an expert AI with access to a **web browser** and **Wikipedia**
+            - Has a **conversation** with follow-up questions for deeper insights
+
+            ---
+
+            ## Final Report
+
+            After the research is complete:
+
+            - Insights are **synthesized** into a **clear, structured report**
+
+            ---
+
+            ## Disclaimer
+
+            1. While this AI system is designed to assist with research and provide useful insights, 
+            it may occasionally produce inaccurate or outdated information.  
+            
+            2. Always double-check key facts and consult reliable sources before making decisions based on the results.
+            
+            ---
+
+            *Note:* The research may take **2–3 minutes** to complete.  
+            Sit back, relax, and let your team of AI analysts do the heavy lifting!
+            """
+            )
         st.header("Final Selected Analysts")
         final_analysts = st.session_state["response"]["final_analysts"]
         data_final = pd.DataFrame([analyst.to_dict for analyst in final_analysts])
