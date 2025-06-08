@@ -45,18 +45,22 @@ class LangGraphLocalClient:
         for event in graph_memory.stream(None, self.thread, subgraphs=True, stream_mode="updates"):
             _, data = event  # event[1] → data
             if data.get('generate_question', ''):
-                print("Question: ", data.get('generate_question', '')["messages"][0].content)
-                yield data.get('generate_question', '')["messages"][0].content + "\n\n --- \n\n"
+                question = data.get('generate_question', '')["messages"][0].content
+                logger.info(f"Question: {question}")
+                yield question + "\n\n --- \n\n"
             if data.get('generate_answer', ''):
-                print("Answer: ", data.get('generate_answer', '')["messages"][0].content)
-                yield data.get('generate_answer', '')["messages"][0].content + "\n\n --- \n\n"
+                answer = data.get('generate_answer', '')["messages"][0].content
+                logger.info(f"Answer: {answer}")
+                yield answer + "\n\n --- \n\n"
             if data.get('write_section', ''):
-                print("Section: ", data.get('write_section', '')["messages"][0].content)
-                yield data.get('write_section', '')["messages"][0].content + "\n\n --- \n\n"
+                section = data.get('write_section', '')["sections"][0]
+                logger.info(f"Section: {section}")
+                yield section + "\n\n --- \n\n"
 
     def get_state(self):
         """Get the current state of the thread"""
-        return graph_memory.get_state(self.thread)
+        state_data = graph_memory.get_state(self.thread)[0]
+        return state_data
         
 
 class LangGraphClient:
