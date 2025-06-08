@@ -1,6 +1,5 @@
 import streamlit as st
-import os
-from langgraph_client import LangGraphClient
+from langgraph_client import LangGraphLocalClient
 import pandas as pd
 import logging
 
@@ -15,25 +14,19 @@ if "api_key_entered" not in st.session_state:
 if not st.session_state.api_key_entered:
     with st.sidebar:
         st.header("API Configuration")
-        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input")
-        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input")
+        google_api_key = st.text_input("Enter your Google API Key:", type="password", key="google_api_key_input", value="")
+        tavily_api_key = st.text_input("Enter your Tavily API Key:", type="password", key="tavily_api_key_input", value="")
         if st.button("Set API Key"):
             if google_api_key and tavily_api_key:
-                st.session_state["google_api_key"] = google_api_key
-                st.session_state["tavily_api_key"] = tavily_api_key
+                logger.info("Initializing LangGraphLocalClient...")
+                st.session_state["client"] = LangGraphLocalClient(google_api_key, tavily_api_key)
+                st.session_state["response"] = None
                 st.session_state.api_key_entered = True
                 st.success("API Key set successfully!") 
                 st.rerun()
             else:
                 st.error("Please enter a valid API Key.") 
     st.stop() 
-
-# Initialize client in session state if not present
-if "client" not in st.session_state and st.session_state.api_key_entered:
-    logger.info("Initializing LangGraphClient...")
-    st.session_state["client"] = LangGraphClient()
-    st.session_state["client"].assistant_id = st.session_state["client"].create_assistant("research")
-    st.session_state["response"] = None
 
 st.title("AI Research Assistant v1.0")
 
@@ -49,8 +42,6 @@ if not st.session_state["response"]:
             input_data = {
                 "topic": topic,
                 "max_analysts": max_analysts,
-                "google_api_key": st.session_state["google_api_key"],
-                "tavily_api_key": st.session_state["tavily_api_key"],
             }
             st.session_state["response"] = st.session_state["client"].run_graph(input_data=input_data)
             st.rerun()
@@ -68,7 +59,7 @@ if st.session_state["response"]:
                 logger.info("Feedback added, updating analysts...")
 
         analysts = st.session_state["response"]["analysts"]
-        data = pd.DataFrame(analysts)
+        data = pd.DataFrame([analyst.to_dict for analyst in analysts])
         data.index += 1
         st.dataframe(data, use_container_width=True)
         
@@ -85,20 +76,20 @@ if st.session_state["response"]:
     if "final_analysts" in st.session_state["response"]:
         st.header("Final Selected Analysts")
         final_analysts = st.session_state["response"]["final_analysts"]
-        data_final = pd.DataFrame(final_analysts)
+        data_final = pd.DataFrame([analyst.to_dict for analyst in final_analysts])
         data_final.index += 1
         st.dataframe(data_final, use_container_width=True)
 
         if st.button("Start Research"):
             logger.info("Starting research...")
             with st.spinner("Conducting research..."):
-                # Prepare input data for backend
                 input_data = {}
                 with st.container(height=300):
                     st.write_stream(st.session_state["client"].run_graph_stream(input_data=input_data))
             
             logger.info("Research completed, updating final report...")
             client_state = st.session_state["client"].get_state()
+            logger.debug(f"Client state: {client_state}")
             final_report = client_state["final_report"]
             st.header("Final Report")
             st.markdown(final_report)
