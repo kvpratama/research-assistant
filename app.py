@@ -7,6 +7,12 @@ import logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+st.set_page_config(
+    page_title="AI Research Assistant v1.0 (Mini)",
+    page_icon="📋",
+    layout="centered",
+)
+
 # Get API Key from user
 if "api_key_entered" not in st.session_state:
     st.session_state.api_key_entered = False
